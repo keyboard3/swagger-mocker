@@ -13,6 +13,15 @@ type Data = {
  *       200:
  *         description: hello world
  */
+/**
+ * @swagger
+ * /api/hello:
+ *   post:
+ *     description: Returns the hello world
+ *     responses:
+ *       200:
+ *         description: hello world
+ */
 export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
