@@ -1,9 +1,40 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./styles.module.css";
 
-export function MockDataButton({ path }: { path: string }) {
+export function MockDataButton({ path, ns = "bn" }: { path: string, ns: string }) {
   let [isOpen, setIsOpen] = useState(false)
-
+  const textAreaRef = useRef<HTMLTextAreaElement>(null)
+  const onSave = () => {
+    fetch(`/api/${ns}/mock-data`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        method: "post",
+        path,
+        data: textAreaRef.current?.value
+      })
+    }).then(() => {
+      setIsOpen(false)
+    })
+  }
+  useEffect(() => {
+    fetch(`/api/${ns}/mock-data`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        method: "get",
+        path,
+      })
+    })
+      .then(res => res.json())
+      .then(({ data }) => {
+        textAreaRef.current!.value = data;
+      })
+  }, [textAreaRef, path, ns])
   return (
     <>
       <div
@@ -19,11 +50,11 @@ export function MockDataButton({ path }: { path: string }) {
             <button className="p-3 bg-green-500 rounded-lg w-full text-white" onClick={setIsOpen.bind(null, false)}>
               Cancel
             </button>
-            <button className="p-3 bg-[#4F46E5] rounded-lg w-full text-white !ml-2">
+            <button className="p-3 bg-[#4F46E5] rounded-lg w-full text-white !ml-2" onClick={onSave}>
               Save
             </button>
           </div>
-          <textarea rows={4} id="basic" placeholder="Enter your review here"
+          <textarea ref={textAreaRef} rows={4} id="basic" placeholder="Enter your review here"
                     className="block w-full rounded-md border-gray-200 text-sm transition focus:border-blue-600 focus:ring-blue-600 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:opacity-75" />
         </div>
       </div>
